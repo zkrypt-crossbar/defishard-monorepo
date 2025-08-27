@@ -31,7 +31,7 @@ try {
     console.log('✅ WASM loader imported');
     
     // Import REAL SDK bundle (built from monorepo)
-    importScripts('/assets/sdk-bundle/defishard-sdk-extension.js');
+    importScripts('../assets/sdk-bundle/defishard-sdk-extension.js');
     console.log('✅ REAL DeFiShArd SDK bundle imported - WITH recursive fix!');
 } catch (error) {
     console.error('❌ Failed to load REAL SDK bundle:', error);
