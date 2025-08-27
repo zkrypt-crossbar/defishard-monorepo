@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeFiShArd Keygen Demo Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        button { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover { background: #2980b9; }
+        .log { 
+            background: #f8f9fa; 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 4px;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 DeFiShArd Keygen Demo Test</h1>
+        <p>This page tests the KeygenDemo component functionality independently.</p>
+        
+        <div class="test-section">
+            <h3>🧪 Component Test</h3>
+            <p>Testing the KeygenDemo component rendering and basic functionality...</p>
+            <div id="demo-container"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📋 Test Logs</h3>
+            <div id="test-logs" class="log"></div>
+            <button onclick="clearLogs()">Clear Logs</button>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('test-logs');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = type;
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            logsDiv.appendChild(logEntry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLogs() {
+            document.getElementById('test-logs').innerHTML = '';
+        }
+
+        // Test SDK Service availability
+        function testSDKService() {
+            log('Testing SDK Service availability...');
+            
+            // Check if SDK service is available
+            if (typeof window !== 'undefined' && window.DeFiShArdSDK) {
+                log('✅ Real DeFiShArd SDK found', 'success');
+                return true;
+            } else {
+                log('⚠️ Real SDK not found, will use mock implementation', 'info');
+                return false;
+            }
+        }
+
+        // Test component rendering
+        function testComponentRendering() {
+            log('Testing component rendering...');
+            
+            const container = document.getElementById('demo-container');
+            if (container) {
+                container.innerHTML = `
+                    <div style="padding: 20px; border: 2px dashed #3498db; border-radius: 8px;">
+                        <h4>🎯 KeygenDemo Component Placeholder</h4>
+                        <p>This would normally render the React KeygenDemo component.</p>
+                        <p>To see the full demo, run: <code>npm start</code> in the defishard-web-app directory.</p>
+                        <div style="margin: 10px 0;">
+                            <button onclick="testCreatorWorkflow()">Test Creator Workflow</button>
+                            <button onclick="testJoinerWorkflow()">Test Joiner Workflow</button>
+                        </div>
+                    </div>
+                `;
+                log('✅ Component container ready', 'success');
+            } else {
+                log('❌ Component container not found', 'error');
+            }
+        }
+
+        // Test creator workflow simulation
+        function testCreatorWorkflow() {
+            log('🧪 Simulating Creator Workflow...');
+            
+            setTimeout(() => log('1. Initializing SDK...'), 500);
+            setTimeout(() => log('2. Registering party...'), 1500);
+            setTimeout(() => log('3. Creating group (2-of-3)...'), 2500);
+            setTimeout(() => log('4. Generating setup data...'), 3500);
+            setTimeout(() => log('5. Starting keygen...'), 4500);
+            setTimeout(() => log('✅ Creator workflow simulation complete', 'success'), 5500);
+        }
+
+        // Test joiner workflow simulation
+        function testJoinerWorkflow() {
+            log('🧪 Simulating Joiner Workflow...');
+            
+            setTimeout(() => log('1. Initializing SDK...'), 500);
+            setTimeout(() => log('2. Registering party...'), 1500);
+            setTimeout(() => log('3. Joining group...'), 2500);
+            setTimeout(() => log('4. Starting keygen...'), 3500);
+            setTimeout(() => log('✅ Joiner workflow simulation complete', 'success'), 4500);
+        }
+
+        // Initialize tests
+        window.onload = function() {
+            log('🚀 DeFiShArd Keygen Demo Test initialized');
+            testSDKService();
+            testComponentRendering();
+            log('💡 Click the test buttons above to simulate workflows');
+        };
+    </script>
+</body>
+</html>

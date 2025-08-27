@@ -1,0 +1,75 @@
+{
+  "manifest_version": 3,
+  "name": "DeFiShArd Extension",
+  "version": "1.0.0",
+  "description": "Secure MPC key generation and threshold signing for web applications",
+  
+  "background": {
+    "service_worker": "background/real-sdk-background-fixed.js"
+  },
+  
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
+    "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline'; child-src 'self'"
+  },
+  
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  
+  "optional_permissions": [
+    "scripting",
+    "webNavigation",
+    "tabs"
+  ],
+  
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "ws://localhost:3000/*",
+    "http://68.183.230.178:3000/*",
+    "ws://68.183.230.178:3000/*",
+    "https://*/*"
+  ],
+  
+  "web_accessible_resources": [{
+    "resources": [
+      "assets/sdk-bundle/*",
+      "assets/icons/*"
+    ],
+    "matches": ["<all_urls>"]
+  }],
+  
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "DeFiShArd",
+    "default_icon": {
+      "16": "assets/icons/icon.svg",
+      "32": "assets/icons/icon.svg",
+      "48": "assets/icons/icon.svg",
+      "128": "assets/icons/icon.svg"
+    }
+  },
+  
+  "icons": {
+    "16": "assets/icons/icon.svg",
+    "32": "assets/icons/icon.svg",
+    "48": "assets/icons/icon.svg",
+    "128": "assets/icons/icon.svg"
+  },
+  
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content-scripts/content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  
+  "options_page": "options/options.html",
+  
+  "author": "DeFiShArd Team",
+  "homepage_url": "https://defishard.com",
+  
+  "minimum_chrome_version": "88"
+}

@@ -1,0 +1,30 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Circular Background -->
+  <circle cx="60" cy="60" r="50" fill="#E6F4EA" />
+  
+  <!-- Upload Arrow -->
+  <g transform="translate(60, 60) scale(1.8)">
+    <!-- Arrow Shaft -->
+    <rect x="-2" y="-5" width="4" height="20" rx="1" fill="#34A853" />
+    
+    <!-- Arrow Head -->
+    <path d="M-10,-5 L0,-15 L10,-5 Z" fill="#34A853" />
+    
+    <!-- Base Line -->
+    <rect x="-12" y="15" width="24" height="4" rx="1" fill="#34A853" />
+  </g>
+  
+  <!-- Key Symbol -->
+  <g transform="translate(60, 75) scale(0.7)">
+    <circle cx="0" cy="-15" r="8" fill="#34A853" />
+    <rect x="-3" y="-10" width="6" height="20" rx="1" fill="#34A853" />
+    <rect x="-8" y="0" width="16" height="4" rx="1" fill="#34A853" />
+    <rect x="-8" y="8" width="16" height="4" rx="1" fill="#34A853" />
+  </g>
+  
+  <!-- Decorative Elements -->
+  <path d="M25,40 L35,40 L35,30 L25,30 Z" fill="#81C995" opacity="0.6" />
+  <path d="M85,40 L95,40 L95,30 L85,30 Z" fill="#81C995" opacity="0.6" />
+  <path d="M25,90 L35,90 L35,80 L25,80 Z" fill="#81C995" opacity="0.6" />
+  <path d="M85,90 L95,90 L95,80 L85,80 Z" fill="#81C995" opacity="0.6" />
+</svg>

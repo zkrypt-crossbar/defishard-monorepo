@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeFiShArd SDK Direct Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .log { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { color: green; }
+        .error { color: red; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>DeFiShArd SDK Direct Test</h1>
+    
+    <div>
+        <button onclick="testRelayConnection()">Test Relay Server Connection</button>
+        <button onclick="testPartyRegistration()">Test Party Registration</button>
+        <button onclick="testWebSocketConnection()">Test WebSocket Connection</button>
+        <button onclick="testAllConnections()">Test All Connections</button>
+        <button onclick="clearLogs()">Clear Logs</button>
+    </div>
+    
+    <div id="logs"></div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('logs');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log ${type}`;
+            logEntry.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logsDiv.appendChild(logEntry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+        }
+
+        async function testRelayConnection() {
+            log('Testing relay server connection...');
+            
+            try {
+                const response = await fetch('http://localhost:3000/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.text();
+                    log(`✅ Relay server is running: ${data}`, 'success');
+                } else {
+                    log(`❌ Relay server responded with status: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Failed to connect to relay server: ${error.message}`, 'error');
+            }
+        }
+
+        async function testPartyRegistration() {
+            log('Testing party registration with relay server...');
+            
+            try {
+                // Generate a party ID (similar to how the real SDK does it)
+                const partyId = crypto.randomUUID().replace(/-/g, '');
+                log(`Generated party ID: ${partyId}`);
+                
+                // Test the registration endpoint directly with detailed debugging
+                log('Making request to: http://localhost:3000/party/register');
+                log(`Request payload: ${JSON.stringify({ party_id: partyId })}`);
+                
+                const response = await fetch('http://localhost:3000/party/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        party_id: partyId
+                    })
+                });
+                
+                // Log response details
+                log(`Response status: ${response.status} ${response.statusText}`);
+                log(`Response headers:`);
+                for (const [key, value] of response.headers.entries()) {
+                    log(`  ${key}: ${value}`);
+                }
+                
+                // Check if response is ok
+                if (response.ok) {
+                    // Try to get response as text first to see raw content
+                    const responseText = await response.text();
+                    log(`Raw response text: "${responseText}"`);
+                    
+                    // Try to parse as JSON
+                    try {
+                        const data = JSON.parse(responseText);
+                        log(`✅ Party registration successful:`, 'success');
+                        log(`Parsed JSON response: ${JSON.stringify(data, null, 2)}`, 'success');
+                        log(`Party ID: ${data.party_id || data.partyId || data.id || 'Not found in response'}`, 'success');
+                    } catch (jsonError) {
+                        log(`⚠️ Response received but failed to parse as JSON: ${jsonError.message}`, 'error');
+                        log(`Raw response was: "${responseText}"`, 'error');
+                    }
+                } else {
+                    // For error responses, also get raw text first
+                    const errorText = await response.text();
+                    log(`❌ Party registration failed with status ${response.status}: "${errorText}"`, 'error');
+                    
+                    // Try to parse error as JSON too
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        log(`Error response JSON: ${JSON.stringify(errorData, null, 2)}`, 'error');
+                    } catch (jsonError) {
+                        log(`Error response is not JSON: ${jsonError.message}`, 'error');
+                    }
+                }
+            } catch (error) {
+                log(`❌ Network or other error: ${error.message}`, 'error');
+                log(`Error type: ${error.constructor.name}`, 'error');
+                if (error.stack) {
+                    log(`Error stack: ${error.stack}`, 'error');
+                }
+            }
+        }
+
+        // Test WebSocket connection
+        async function testWebSocketConnection() {
+            log('Testing WebSocket connection...');
+            
+            try {
+                const ws = new WebSocket('ws://localhost:3000');
+                
+                ws.onopen = function() {
+                    log('✅ WebSocket connection established', 'success');
+                    ws.close();
+                };
+                
+                ws.onerror = function(error) {
+                    log(`❌ WebSocket connection failed: ${error}`, 'error');
+                };
+                
+                ws.onclose = function() {
+                    log('WebSocket connection closed');
+                };
+                
+            } catch (error) {
+                log(`❌ WebSocket error: ${error.message}`, 'error');
+            }
+        }
+
+        // Test all connections in sequence
+        async function testAllConnections() {
+            log('🔄 Running comprehensive connection tests...', 'info');
+            
+            await testRelayConnection();
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second between tests
+            
+            await testPartyRegistration();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testWebSocketConnection();
+            
+            log('✅ All connection tests completed', 'success');
+        }
+
+        // Auto-run basic tests on page load
+        window.onload = function() {
+            log('DeFiShArd SDK Direct Test loaded');
+            log('Click buttons above to test different components');
+        };
+    </script>
+</body>
+</html>

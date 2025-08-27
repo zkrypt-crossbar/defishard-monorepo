@@ -1,0 +1,44 @@
+{
+  "name": "@defishard/monorepo",
+  "version": "1.0.0",
+  "description": "DeFiShArd Cross-Platform Monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build:core": "cd packages/core && cargo build --release",
+    "build:wasm": "cd packages/core && wasm-pack build --target web --out-dir ../sdk/pkg",
+    "build:sdk": "cd packages/sdk && npm run build",
+    "build:extension": "cd packages/extension && npm run build",
+    "build:web": "cd packages/web && npm run build",
+    "build:mobile": "cd packages/mobile && npm run build",
+    "build:all": "npm run build:core && npm run build:wasm && npm run build:sdk && npm run build:extension && npm run build:web && npm run build:mobile",
+    "dev:extension": "cd packages/extension && npm run dev",
+    "dev:web": "cd packages/web && npm run dev",
+    "dev:mobile": "cd packages/mobile && npm run dev",
+    "test:sdk": "cd packages/sdk && npm test",
+    "test:all": "npm run test:sdk",
+    "clean": "rm -rf packages/*/dist packages/*/build packages/*/node_modules",
+    "setup": "npm install && npm run build:core && npm run build:wasm && npm run build:sdk",
+    "install-all": "npm install && npm install --workspaces",
+    "postinstall": "npm run install-all"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Cramiumlabs/defishard-monorepo"
+  },
+  "author": "DeFiShArd Team",
+  "license": "MIT"
+}

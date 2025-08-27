@@ -1,0 +1,7 @@
+{
+  "groupId": "fe70a11a5945d172071c71e903803586200e4a5cc4e22db6fff761bd3f60c2e8",
+  "threshold": 2,
+  "groupSize": 2,
+  "aesKey": "elV4tGPb/719UbEviaDuVdKgSfKXOKwqWpjNy4jELUQ=",
+  "qrData": "{\"type\":\"keygen\",\"aesKey\":\"elV4tGPb/719UbEviaDuVdKgSfKXOKwqWpjNy4jELUQ=\",\"groupId\":\"fe70a11a5945d172071c71e903803586200e4a5cc4e22db6fff761bd3f60c2e8\",\"threshold\":2,\"totalParties\":2,\"timeout\":60,\"timestamp\":1755598726786,\"version\":\"1.0\"}"
+}

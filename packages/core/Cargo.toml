@@ -1,0 +1,33 @@
+[package]
+name = "defishard-sdk"
+version = "0.1.0"
+edition = "2021"
+description = "DeFiShArd SDK - Distributed Key Generation and Signature Generation for WebAssembly"
+license = "MIT"
+repository = "https://github.com/your-org/defishard-sdk"
+keywords = ["wasm", "mpc", "threshold-signatures", "dkg", "dsg", "defi"]
+categories = ["cryptography", "wasm"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[features]
+default = ["console_error_panic_hook"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+ciborium = "0.2"
+dkls23-ll = { path = "../../mpc-dkls23", version = "1.0.3" }
+k256 = "0.13"
+derivation_path = "0.1"
+
+# The `console_error_panic_hook` crate provides better debugging of panics by
+# logging them with `console.error`. This is great for development, but requires
+# all the `std::fmt` and `std::panicking` infrastructure, so isn't great for
+# code size when deploying.
+console_error_panic_hook = { version = "0.1.7", optional = true }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3.50"

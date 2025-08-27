@@ -1,0 +1,80 @@
+{
+  "name": "defishard-sdk",
+  "version": "0.1.0",
+  "description": "DeFiShArd SDK - Distributed Key Generation and Signature Generation for WebAssembly",
+  "main": "pkg/defishard_sdk.js",
+  "module": "pkg/defishard_sdk.js",
+  "types": "pkg/defishard_sdk.d.ts",
+  "files": [
+    "pkg/",
+    "js/",
+    "dist/",
+    "README.md",
+    "LICENSE.md"
+  ],
+  "scripts": {
+    "build": "wasm-pack build -t web && npm run build:js",
+    "build:web": "wasm-pack build -t web",
+    "build:node": "wasm-pack build -t nodejs",
+    "build:all": "wasm-pack build -t web && wasm-pack build -t nodejs && npm run build:js",
+    "build:js": "tsc -p js/tsconfig.json",
+    "test": "npm run test:all",
+    "test:all": "node tests/test-runner.js",
+    "test:unit": "node tests/unit/storage.test.js && node tests/unit/keygen-processor.test.js && node tests/unit/sign-processor.test.js",
+    "test:unit:storage": "node tests/unit/storage.test.js",
+    "test:unit:keygen": "node tests/unit/keygen-processor.test.js",
+    "test:unit:sign": "node tests/unit/sign-processor.test.js",
+    "test:unit:jest": "jest tests/unit/",
+    "test:integration": "jest tests/integration/",
+    "test:integration:full-flow": "node tests/integration/full-flow.test.js",
+    "test:integration:multi-party": "node tests/integration/multi-party.test.js",
+    "test:integration:threshold-signing": "node tests/integration/threshold-signing.test.js",
+    "test:e2e": "jest tests/e2e/",
+    "test:e2e:real": "node tests/e2e/real-backend.test.js",
+    "test:coverage": "jest --coverage",
+    "test:browser": "wasm-pack test --headless --firefox",
+    "test:deno": "deno test tests/tests.ts --no-check --allow-read",
+    "dev": "python3 -m http.server 8000",
+    "clean": "rm -rf pkg target dist coverage",
+    "prepublishOnly": "npm run build:all"
+  },
+  "keywords": [
+    "wasm",
+    "mpc",
+    "threshold-signatures",
+    "dkg",
+    "dsg",
+    "defi",
+    "cryptography",
+    "webassembly",
+    "rust",
+    "typescript",
+    "websocket",
+    "relay-server"
+  ],
+  "author": "DeFiShArd Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/defishard-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/defishard-sdk/issues"
+  },
+  "homepage": "https://github.com/your-org/defishard-sdk#readme",
+  "devDependencies": {
+    "wasm-pack": "^0.12.0",
+    "typescript": "^5.0.0",
+    "jest": "^29.0.0",
+    "@types/jest": "^29.0.0",
+    "ts-jest": "^29.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+} 

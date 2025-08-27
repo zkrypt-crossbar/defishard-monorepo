@@ -1,0 +1,27 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Circular Background -->
+  <circle cx="60" cy="60" r="50" fill="#F3E8FF" />
+  
+  <!-- Plus Symbol -->
+  <g transform="translate(60, 50) scale(1.8)">
+    <!-- Vertical Line -->
+    <rect x="-2" y="-12" width="4" height="24" rx="1" fill="#9333EA" />
+    
+    <!-- Horizontal Line -->
+    <rect x="-12" y="-2" width="24" height="4" rx="1" fill="#9333EA" />
+  </g>
+  
+  <!-- Key Symbol -->
+  <g transform="translate(60, 75) scale(0.7)">
+    <circle cx="0" cy="-15" r="8" fill="#9333EA" />
+    <rect x="-3" y="-10" width="6" height="20" rx="1" fill="#9333EA" />
+    <rect x="-8" y="0" width="16" height="4" rx="1" fill="#9333EA" />
+    <rect x="-8" y="8" width="16" height="4" rx="1" fill="#9333EA" />
+  </g>
+  
+  <!-- Decorative Fragments -->
+  <path d="M30,35 L40,30 L45,40 L35,45 Z" fill="#C084FC" opacity="0.6" />
+  <path d="M80,35 L90,30 L95,40 L85,45 Z" fill="#C084FC" opacity="0.6" />
+  <path d="M30,85 L40,80 L45,90 L35,95 Z" fill="#C084FC" opacity="0.6" />
+  <path d="M80,85 L90,80 L95,90 L85,95 Z" fill="#C084FC" opacity="0.6" />
+</svg>

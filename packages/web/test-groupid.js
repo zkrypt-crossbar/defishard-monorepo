@@ -1,0 +1,1 @@
+console.log('Testing generateGroupId:'); const array = new Uint8Array(32); crypto.getRandomValues(array); const groupId = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join(''); console.log('Generated groupId:', groupId); console.log('Length:', groupId.length);

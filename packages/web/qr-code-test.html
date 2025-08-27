@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Test</title>
+    <script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .qr-code { text-align: center; margin: 10px 0; }
+        textarea { width: 100%; height: 100px; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🔐 DeFiShArd QR Code Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Basic Setup Data (from setup-data.json)</h2>
+        <button onclick="testBasicSetupData()">Generate Basic Setup Data</button>
+        <div id="basic-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Enhanced QR Code Data</h2>
+        <button onclick="testEnhancedQRData()">Generate Enhanced QR Data</button>
+        <div id="enhanced-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Parse QR Code Data</h2>
+        <textarea id="qr-input" placeholder="Paste QR code data here..."></textarea>
+        <button onclick="testParseQRData()">Parse QR Data</button>
+        <div id="parse-result"></div>
+    </div>
+
+    <script>
+        // Test 1: Basic setup data (matches setup-data.json format)
+        function testBasicSetupData() {
+            const basicData = {
+                groupId: "6a32b162d98f0169e3b079b7b19c29a69dd03147d61f9508c736bdccde6c4718",
+                threshold: 2,
+                groupSize: 2,
+                aesKey: "o6iFk3zHmK21s2OdfmLAL/AKX3181xtSRy/YphUPMjY="
+            };
+            
+            const jsonString = JSON.stringify(basicData, null, 2);
+            displayQRCode('basic-result', jsonString, 'Basic Setup Data');
+        }
+
+        // Test 2: Enhanced QR code data (matches our web app format)
+        function testEnhancedQRData() {
+            const enhancedData = {
+                type: 'keygen',
+                groupId: "6a32b162d98f0169e3b079b7b19c29a69dd03147d61f9508c736bdccde6c4718",
+                threshold: 2,
+                totalParties: 2,
+                timeout: 60,
+                timestamp: Date.now(),
+                version: '1.0',
+                aesKey: btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32)))),
+                metadata: {
+                    threshold: 2,
+                    totalParties: 2,
+                    timeout: 60,
+                    sessionName: `Keygen Session ${new Date().toLocaleString()}`,
+                    creator: 'test-party-id'
+                }
+            };
+            
+            const jsonString = JSON.stringify(enhancedData, null, 2);
+            displayQRCode('enhanced-result', jsonString, 'Enhanced QR Code Data');
+        }
+
+        // Test 3: Parse QR code data
+        function testParseQRData() {
+            const input = document.getElementById('qr-input').value;
+            if (!input.trim()) {
+                alert('Please paste QR code data first');
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(input);
+                let result = '<h3>✅ Parsed Successfully</h3>';
+                
+                // Check format and extract info
+                if (parsed.type === 'keygen' && parsed.groupId && parsed.aesKey) {
+                    result += '<p><strong>Format:</strong> Enhanced QR Code Data</p>';
+                    result += `<p><strong>Type:</strong> ${parsed.type}</p>`;
+                    result += `<p><strong>Group ID:</strong> ${parsed.groupId}</p>`;
+                    result += `<p><strong>Threshold:</strong> ${parsed.threshold}</p>`;
+                    result += `<p><strong>Total Parties:</strong> ${parsed.totalParties}</p>`;
+                    result += `<p><strong>AES Key:</strong> ${parsed.aesKey ? 'Included' : 'None'}</p>`;
+                    if (parsed.metadata) {
+                        result += `<p><strong>Session Name:</strong> ${parsed.metadata.sessionName}</p>`;
+                        result += `<p><strong>Creator:</strong> ${parsed.metadata.creator}</p>`;
+                    }
+                } else if (parsed.groupId && parsed.threshold && parsed.groupSize) {
+                    result += '<p><strong>Format:</strong> Basic Setup Data</p>';
+                    result += `<p><strong>Group ID:</strong> ${parsed.groupId}</p>`;
+                    result += `<p><strong>Threshold:</strong> ${parsed.threshold}</p>`;
+                    result += `<p><strong>Group Size:</strong> ${parsed.groupSize}</p>`;
+                    result += `<p><strong>AES Key:</strong> ${parsed.aesKey ? 'Included' : 'None'}</p>`;
+                } else {
+                    result += '<p><strong>Format:</strong> Unknown</p>';
+                    result += `<p><strong>Keys:</strong> ${Object.keys(parsed).join(', ')}</p>`;
+                }
+                
+                document.getElementById('parse-result').innerHTML = result;
+            } catch (error) {
+                document.getElementById('parse-result').innerHTML = `<h3>❌ Parse Error</h3><p>${error.message}</p>`;
+            }
+        }
+
+        // Helper function to display QR code
+        function displayQRCode(elementId, data, title) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = `
+                <h3>${title}</h3>
+                <div class="qr-code">
+                    <div id="qr-${elementId}"></div>
+                    <p>📱 Scan QR Code</p>
+                </div>
+                <textarea readonly>${data}</textarea>
+                <button onclick="navigator.clipboard.writeText('${data.replace(/'/g, "\\'")}')">📋 Copy Data</button>
+            `;
+            
+            // Generate QR code
+            QRCode.toCanvas(document.getElementById(`qr-${elementId}`), data, {
+                width: 200,
+                margin: 2
+            }, function (error) {
+                if (error) console.error(error);
+            });
+        }
+
+        // Load test data from setup-data.json
+        window.addEventListener('load', function() {
+            const testData = {
+                "groupId": "6a32b162d98f0169e3b079b7b19c29a69dd03147d61f9508c736bdccde6c4718",
+                "threshold": 2,
+                "groupSize": 2,
+                "aesKey": "o6iFk3zHmK21s2OdfmLAL/AKX3181xtSRy/YphUPMjY=",
+                "qrData": "{\"type\":\"keygen\",\"aesKey\":\"o6iFk3zHmK21s2OdfmLAL/AKX3181xtSRy/YphUPMjY=\",\"groupId\":\"6a32b162d98f0169e3b079b7b19c29a69dd03147d61f9508c736bdccde6c4718\",\"threshold\":2,\"totalParties\":2,\"timeout\":60,\"timestamp\":1755265203209,\"version\":\"1.0\"}"
+            };
+            
+            document.getElementById('qr-input').value = testData.qrData;
+        });
+    </script>
+</body>
+</html>
