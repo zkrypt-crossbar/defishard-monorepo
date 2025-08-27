@@ -34,11 +34,13 @@ WebAssembly.instantiate = async function(moduleOrBytes, importObject) {
             
             let wasmUrl;
             if (moduleOrBytes.endsWith('.wasm')) {
-                // Extract filename and use REAL WASM from monorepo (copied to sdk-bundle during build)
+                // Extract filename and redirect to our actual WASM file
                 const filename = moduleOrBytes.split('/').pop();
-                const wasmPath = `assets/sdk-bundle/${filename}`;
+                const actualWasmFile = 'dkls_wasm_ll_bg.wasm';
+                const wasmPath = `assets/sdk-bundle/${actualWasmFile}`;
                 wasmUrl = chrome.runtime.getURL(wasmPath);
                 
+                console.log(`🔧 Redirecting WASM: ${filename} → ${actualWasmFile}`);
                 console.log('🔧 Fetching REAL WASM from monorepo:', wasmUrl);
                 const response = await fetch(wasmUrl);
                 
@@ -135,7 +137,9 @@ WebAssembly.instantiateStreaming = async function(source, importObject) {
             let wasmUrl;
             if (source.endsWith('.wasm')) {
                 const filename = source.split('/').pop();
-                wasmUrl = chrome.runtime.getURL(`assets/sdk-bundle/${filename}`);
+                const actualWasmFile = 'dkls_wasm_ll_bg.wasm';
+                wasmUrl = chrome.runtime.getURL(`assets/sdk-bundle/${actualWasmFile}`);
+                console.log(`🔧 Redirecting streaming WASM: ${filename} → ${actualWasmFile}`);
             } else {
                 wasmUrl = source;
             }
@@ -165,9 +169,12 @@ const originalURL = globalThis.URL;
 globalThis.URL = function(url, base) {
     // Handle WASM file construction with undefined/empty base
     if (typeof url === 'string' && url.endsWith('.wasm') && (!base || base === '' || base === undefined)) {
-        // Use REAL WASM from monorepo
-        const wasmUrl = chrome.runtime.getURL(`assets/sdk-bundle/${url}`);
-        console.log('🔧 URL constructor redirected to REAL WASM:', url, '→', wasmUrl);
+        // Redirect to our actual WASM file
+        const filename = url.split('/').pop();
+        const actualWasmFile = 'dkls_wasm_ll_bg.wasm';
+        const wasmUrl = chrome.runtime.getURL(`assets/sdk-bundle/${actualWasmFile}`);
+        console.log(`🔧 URL constructor redirected WASM: ${filename} → ${actualWasmFile}`);
+        console.log('🔧 Final WASM URL:', wasmUrl);
         return new originalURL(wasmUrl);
     }
     
@@ -188,15 +195,19 @@ const originalFetch = globalThis.fetch;
 globalThis.fetch = async function(url, options) {
     if (typeof url === 'string' && url.endsWith('.wasm')) {
         const filename = url.split('/').pop();
-        const wasmUrl = chrome.runtime.getURL(`assets/sdk-bundle/${filename}`);
-        console.log('🔧 Fetch redirected REAL WASM:', url, '→', wasmUrl);
+        const actualWasmFile = 'dkls_wasm_ll_bg.wasm';
+        const wasmUrl = chrome.runtime.getURL(`assets/sdk-bundle/${actualWasmFile}`);
+        console.log(`🔧 Fetch redirected WASM: ${filename} → ${actualWasmFile}`);
+        console.log('🔧 Final WASM URL:', wasmUrl);
         return originalFetch(wasmUrl, options);
     }
     
     if (url instanceof URL && url.pathname.endsWith('.wasm')) {
         const filename = url.pathname.split('/').pop();
-        const wasmUrl = chrome.runtime.getURL(`assets/sdk-bundle/${filename}`);
-        console.log('🔧 Fetch redirected REAL WASM URL object:', url.href, '→', wasmUrl);
+        const actualWasmFile = 'dkls_wasm_ll_bg.wasm';
+        const wasmUrl = chrome.runtime.getURL(`assets/sdk-bundle/${actualWasmFile}`);
+        console.log(`🔧 Fetch redirected WASM URL object: ${filename} → ${actualWasmFile}`);
+        console.log('🔧 Final WASM URL:', wasmUrl);
         return originalFetch(wasmUrl, options);
     }
     
