@@ -21,120 +21,71 @@ class DeFiShArdPopup {
         this.initialize();
     }
     
-    // Helper function to create QR code display without innerHTML
-    createQRDisplay(qrData, statusText = null) {
-        const containerDiv = document.createElement('div');
-        containerDiv.style.textAlign = 'center';
-        containerDiv.style.padding = '20px';
+    // Create a simple QR-like pattern for visual representation
+    createSimpleQRPattern(data) {
+        // Create a 20x20 grid for the QR pattern
+        const size = 20;
+        const pattern = Array(size).fill().map(() => Array(size).fill(false));
         
-        const qrBox = document.createElement('div');
-        qrBox.style.background = '#f8f9fa';
-        qrBox.style.border = '2px solid #e9ecef';
-        qrBox.style.borderRadius = '12px';
-        qrBox.style.padding = '20px';
-        qrBox.style.marginBottom = '16px';
-        
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('width', '120');
-        svg.setAttribute('height', '120');
-        svg.setAttribute('viewBox', '0 0 120 120');
-        svg.style.margin = '0 auto';
-        svg.style.display = 'block';
-        
-        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        rect.setAttribute('width', '120');
-        rect.setAttribute('height', '120');
-        rect.setAttribute('fill', '#ffffff');
-        
-        const text1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text1.setAttribute('x', '60');
-        text1.setAttribute('y', '60');
-        text1.setAttribute('text-anchor', 'middle');
-        text1.setAttribute('dy', '.3em');
-        text1.setAttribute('font-family', 'monospace');
-        text1.setAttribute('font-size', '8');
-        text1.setAttribute('fill', '#666');
-        text1.textContent = 'QR Code';
-        
-        const text2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text2.setAttribute('x', '60');
-        text2.setAttribute('y', '75');
-        text2.setAttribute('text-anchor', 'middle');
-        text2.setAttribute('dy', '.3em');
-        text2.setAttribute('font-family', 'monospace');
-        text2.setAttribute('font-size', '6');
-        text2.setAttribute('fill', '#999');
-        text2.textContent = 'Scan with DeFiShArd';
-        
-        svg.appendChild(rect);
-        svg.appendChild(text1);
-        svg.appendChild(text2);
-        qrBox.appendChild(svg);
-        
-        const label = document.createElement('p');
-        label.style.fontSize = '14px';
-        label.style.color = '#666';
-        label.style.marginBottom = '12px';
-        label.style.fontWeight = '500';
-        label.textContent = 'QR Code Data (Copy & Paste):';
-        
-        const dataBox = document.createElement('div');
-        dataBox.style.background = '#f8f9fa';
-        dataBox.style.border = '1px solid #e9ecef';
-        dataBox.style.borderRadius = '8px';
-        dataBox.style.padding = '12px';
-        dataBox.style.textAlign = 'left';
-        
-        const dataText = document.createElement('div');
-        dataText.style.fontFamily = 'monospace';
-        dataText.style.fontSize = '10px';
-        dataText.style.color = '#333';
-        dataText.style.wordBreak = 'break-all';
-        dataText.style.lineHeight = '1.4';
-        dataText.textContent = qrData;
-        
-        dataBox.appendChild(dataText);
-        
-        const instruction = document.createElement('p');
-        instruction.style.fontSize = '12px';
-        instruction.style.color = '#999';
-        instruction.style.marginTop = '12px';
-        instruction.textContent = 'Other devices can copy this data and paste it in their DeFiShArd app';
-        
-        containerDiv.appendChild(qrBox);
-        containerDiv.appendChild(label);
-        containerDiv.appendChild(dataBox);
-        containerDiv.appendChild(instruction);
-        
-        // Add status section if provided
-        if (statusText) {
-            const statusBox = document.createElement('div');
-            statusBox.style.marginTop = '16px';
-            statusBox.style.padding = '12px';
-            statusBox.style.background = '#e3f2fd';
-            statusBox.style.border = '1px solid #2196f3';
-            statusBox.style.borderRadius = '8px';
-            
-            const statusTitle = document.createElement('p');
-            statusTitle.style.fontSize = '14px';
-            statusTitle.style.color = '#1976d2';
-            statusTitle.style.margin = '0';
-            statusTitle.style.fontWeight = '500';
-            statusTitle.textContent = '⏳ Waiting for other parties to join...';
-            
-            const statusText = document.createElement('p');
-            statusText.style.fontSize = '12px';
-            statusText.style.color = '#666';
-            statusText.style.margin = '8px 0 0 0';
-            statusText.id = 'party-status';
-            statusText.textContent = 'Checking group status...';
-            
-            statusBox.appendChild(statusTitle);
-            statusBox.appendChild(statusText);
-            containerDiv.appendChild(statusBox);
+        // Create a simple hash-based pattern from the data
+        let hash = 0;
+        for (let i = 0; i < data.length; i++) {
+            hash = ((hash << 5) - hash + data.charCodeAt(i)) & 0xffffffff;
         }
         
-        return containerDiv;
+        // Use the hash to create a pseudo-random pattern
+        let rand = Math.abs(hash);
+        for (let i = 2; i < size - 2; i++) {
+            for (let j = 2; j < size - 2; j++) {
+                // Skip corner areas for QR identifiers
+                if ((i < 7 && j < 7) || (i < 7 && j >= size - 7) || (i >= size - 7 && j < 7)) {
+                    continue;
+                }
+                
+                rand = (rand * 1103515245 + 12345) & 0x7fffffff;
+                pattern[i][j] = (rand % 3) === 0; // Roughly 33% fill rate
+            }
+        }
+        
+        return pattern;
+    }
+    
+    // Add QR code corner identifiers
+    addQRCorners(svg) {
+        const corners = [
+            { x: 10, y: 10 },      // Top-left
+            { x: 130, y: 10 },     // Top-right
+            { x: 10, y: 130 }      // Bottom-left
+        ];
+        
+        corners.forEach(corner => {
+            // Outer square
+            const outer = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            outer.setAttribute('x', corner.x.toString());
+            outer.setAttribute('y', corner.y.toString());
+            outer.setAttribute('width', '48');
+            outer.setAttribute('height', '48');
+            outer.setAttribute('fill', '#000000');
+            svg.appendChild(outer);
+            
+            // Inner white square
+            const inner = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            inner.setAttribute('x', (corner.x + 8).toString());
+            inner.setAttribute('y', (corner.y + 8).toString());
+            inner.setAttribute('width', '32');
+            inner.setAttribute('height', '32');
+            inner.setAttribute('fill', '#ffffff');
+            svg.appendChild(inner);
+            
+            // Center black square
+            const center = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            center.setAttribute('x', (corner.x + 16).toString());
+            center.setAttribute('y', (corner.y + 16).toString());
+            center.setAttribute('width', '16');
+            center.setAttribute('height', '16');
+            center.setAttribute('fill', '#000000');
+            svg.appendChild(center);
+        });
     }
 
     async initialize() {
@@ -598,16 +549,168 @@ class DeFiShArdPopup {
 
     async generateQRCodeImage() {
         try {
-            // Create a simple QR code using a basic implementation
+            console.log('🔧 Generating real QR code image...');
             const qrData = this.qrCodeData;
             
-            // Use the helper function to create QR display without innerHTML
+            if (!qrData) {
+                console.error('❌ No QR code data available for generation');
+                throw new Error('No QR data available');
+            }
+            
+            console.log('📋 QR data length:', qrData.length);
+            console.log('📋 QR data preview:', qrData.substring(0, 100) + (qrData.length > 100 ? '...' : ''));
+            
             const qrContainer = document.getElementById('qr-container');
             while (qrContainer.firstChild) {
                 qrContainer.removeChild(qrContainer.firstChild);
             }
-            const qrDisplay = this.createQRDisplay(qrData);
-            qrContainer.appendChild(qrDisplay);
+
+            // Create container for QR code
+            const containerDiv = document.createElement('div');
+            containerDiv.style.textAlign = 'center';
+            containerDiv.style.padding = '20px';
+            
+            const qrBox = document.createElement('div');
+            qrBox.style.background = '#ffffff';
+            qrBox.style.border = '2px solid #e9ecef';
+            qrBox.style.borderRadius = '12px';
+            qrBox.style.padding = '20px';
+            qrBox.style.marginBottom = '16px';
+            qrBox.style.display = 'inline-block';
+            
+            // Generate real QR code using the qrcode library
+            if (typeof qrcode !== 'undefined') {
+                console.log('📱 Using qrcode library to generate QR code');
+                
+                // Create QR code instance
+                const qr = qrcode(0, 'M'); // Type 0 (auto), error correction level M
+                qr.addData(qrData);
+                qr.make();
+                
+                // Get the QR code size
+                const moduleCount = qr.getModuleCount();
+                const cellSize = 4;
+                const margin = 20;
+                const qrSize = moduleCount * cellSize + margin * 2;
+                
+                // Create SVG for the QR code
+                const qrSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                qrSvg.setAttribute('width', qrSize.toString());
+                qrSvg.setAttribute('height', qrSize.toString());
+                qrSvg.setAttribute('viewBox', `0 0 ${qrSize} ${qrSize}`);
+                qrSvg.style.display = 'block';
+                qrSvg.style.margin = '0 auto';
+                
+                // Create white background
+                const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                bg.setAttribute('width', qrSize.toString());
+                bg.setAttribute('height', qrSize.toString());
+                bg.setAttribute('fill', '#ffffff');
+                qrSvg.appendChild(bg);
+                
+                // Create QR code modules
+                for (let row = 0; row < moduleCount; row++) {
+                    for (let col = 0; col < moduleCount; col++) {
+                        if (qr.isDark(row, col)) {
+                            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                            rect.setAttribute('x', (col * cellSize + margin).toString());
+                            rect.setAttribute('y', (row * cellSize + margin).toString());
+                            rect.setAttribute('width', cellSize.toString());
+                            rect.setAttribute('height', cellSize.toString());
+                            rect.setAttribute('fill', '#000000');
+                            qrSvg.appendChild(rect);
+                        }
+                    }
+                }
+                
+                qrBox.appendChild(qrSvg);
+                console.log('✅ Real QR code generated successfully');
+            } else {
+                console.warn('⚠️ QR code library not available, creating placeholder');
+                
+                // Fallback: Create simple QR code placeholder using SVG
+                const qrSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                qrSvg.setAttribute('width', '200');
+                qrSvg.setAttribute('height', '200');
+                qrSvg.setAttribute('viewBox', '0 0 200 200');
+                qrSvg.style.display = 'block';
+                qrSvg.style.margin = '0 auto';
+                
+                // Create a simple QR-like pattern
+                const qrPattern = this.createSimpleQRPattern(qrData);
+                
+                // Create background
+                const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                bg.setAttribute('width', '200');
+                bg.setAttribute('height', '200');
+                bg.setAttribute('fill', '#ffffff');
+                bg.setAttribute('stroke', '#000000');
+                bg.setAttribute('stroke-width', '2');
+                qrSvg.appendChild(bg);
+                
+                // Create pattern
+                for (let i = 0; i < qrPattern.length; i++) {
+                    for (let j = 0; j < qrPattern[i].length; j++) {
+                        if (qrPattern[i][j]) {
+                            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                            rect.setAttribute('x', (j * 8 + 10).toString());
+                            rect.setAttribute('y', (i * 8 + 10).toString());
+                            rect.setAttribute('width', '8');
+                            rect.setAttribute('height', '8');
+                            rect.setAttribute('fill', '#000000');
+                            qrSvg.appendChild(rect);
+                        }
+                    }
+                }
+                
+                // Add QR identifier corners
+                this.addQRCorners(qrSvg);
+                
+                qrBox.appendChild(qrSvg);
+                console.log('✅ Fallback QR code pattern generated successfully');
+            }
+            
+            const label = document.createElement('p');
+            label.style.fontSize = '14px';
+            label.style.color = '#666';
+            label.style.marginBottom = '12px';
+            label.style.fontWeight = '500';
+            label.style.marginTop = '16px';
+            label.textContent = 'QR Code Data (Copy & Paste):';
+            
+            const dataBox = document.createElement('div');
+            dataBox.style.background = '#f8f9fa';
+            dataBox.style.border = '1px solid #e9ecef';
+            dataBox.style.borderRadius = '8px';
+            dataBox.style.padding = '12px';
+            dataBox.style.textAlign = 'left';
+            dataBox.style.maxWidth = '300px';
+            dataBox.style.margin = '0 auto';
+            
+            const dataText = document.createElement('div');
+            dataText.style.fontFamily = 'monospace';
+            dataText.style.fontSize = '10px';
+            dataText.style.color = '#333';
+            dataText.style.wordBreak = 'break-all';
+            dataText.style.lineHeight = '1.4';
+            dataText.style.maxHeight = '100px';
+            dataText.style.overflow = 'auto';
+            dataText.textContent = qrData;
+            
+            dataBox.appendChild(dataText);
+            
+            const instruction = document.createElement('p');
+            instruction.style.fontSize = '12px';
+            instruction.style.color = '#999';
+            instruction.style.marginTop = '12px';
+            instruction.textContent = 'Scan the QR code or copy the data to join the group';
+            
+            containerDiv.appendChild(qrBox);
+            containerDiv.appendChild(label);
+            containerDiv.appendChild(dataBox);
+            containerDiv.appendChild(instruction);
+            
+            qrContainer.appendChild(containerDiv);
 
         } catch (error) {
             console.error('QR code image generation failed:', error);
@@ -620,6 +723,11 @@ class DeFiShArdPopup {
             const fallbackDiv = document.createElement('div');
             fallbackDiv.style.textAlign = 'center';
             fallbackDiv.style.padding = '20px';
+            
+            const errorMsg = document.createElement('p');
+            errorMsg.style.color = '#dc3545';
+            errorMsg.style.marginBottom = '16px';
+            errorMsg.textContent = '⚠️ QR Code generation failed. Use the text data below:';
             
             const label = document.createElement('p');
             label.style.fontSize = '12px';
@@ -637,6 +745,7 @@ class DeFiShArdPopup {
             textarea.style.borderRadius = '4px';
             textarea.value = this.qrCodeData;
             
+            fallbackDiv.appendChild(errorMsg);
             fallbackDiv.appendChild(label);
             fallbackDiv.appendChild(textarea);
             qrContainer.appendChild(fallbackDiv);
@@ -655,8 +764,8 @@ class DeFiShArdPopup {
             while (qrContainer.firstChild) {
                 qrContainer.removeChild(qrContainer.firstChild);
             }
-            const waitingDisplay = this.createQRDisplay(this.qrCodeData, true);
-            qrContainer.appendChild(waitingDisplay);
+            // Regenerate the QR code for the waiting state
+            await this.generateQRCodeImage();
             
             // Start polling for group info
             await this.pollGroupInfo();

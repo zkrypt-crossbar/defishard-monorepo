@@ -21,8 +21,7 @@
     "test:all": "npm run test:sdk",
     "clean": "rm -rf packages/*/dist packages/*/build packages/*/node_modules",
     "setup": "npm install && npm run build:core && npm run build:wasm && npm run build:sdk",
-    "install-all": "npm install && npm install --workspaces",
-    "postinstall": "npm run install-all"
+    "install-all": "npm install && npm install --workspaces"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^6.0.0",

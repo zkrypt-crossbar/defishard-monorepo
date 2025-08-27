@@ -154,3 +154,4 @@ if (typeof XMLHttpRequest === 'undefined') {
 }
 
 console.log('✅ Service worker polyfills loaded successfully');
+
