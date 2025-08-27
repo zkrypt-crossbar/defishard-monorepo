@@ -58,13 +58,7 @@
     "128": "assets/icons/icon.svg"
   },
   
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content-scripts/content.js"],
-      "run_at": "document_end"
-    }
-  ],
+
   
   "options_page": "options/options.html",
   
