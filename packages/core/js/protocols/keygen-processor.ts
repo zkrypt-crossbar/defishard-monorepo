@@ -141,6 +141,14 @@ export class KeygenProcessor extends BaseProcessor {
 
       // Handle round 4: complete keygen and send DONE message
       if (round === 4) {
+        // Check if already completed to prevent re-processing
+        if (this.isComplete) {
+          if (this.debug) {
+            console.log(`[KeygenProcessor] Round 4 already processed, keygen complete. Skipping.`);
+          }
+          return [];
+        }
+        
         try {
           const keyShare = this.session.keyshare();
           

@@ -132,6 +132,11 @@ export class ProtocolManager extends EventEmitter {
      */
     async startKeygen(distributed = true, secret) {
         try {
+            // Clear processed message IDs and outgoing queue to allow restarting keygen in same session
+            this.processedMessageIds.clear();
+            this.outgoingQueue = [];
+            this.processingOutgoing = false;
+            
             // Common validation and group info retrieval
             const { groupInfo, partyIndex } = await this.validateAndGetGroupInfo('keygen');
             // Create automated keygen processor
@@ -223,6 +228,11 @@ export class ProtocolManager extends EventEmitter {
      */
     async startSigning(messageHash, keyshare) {
         try {
+            // Clear processed message IDs and outgoing queue to allow restarting signing in same session
+            this.processedMessageIds.clear();
+            this.outgoingQueue = [];
+            this.processingOutgoing = false;
+            
             // Validate message hash
             if (messageHash.length !== 32) {
                 throw new Error('Message hash must be 32 bytes');

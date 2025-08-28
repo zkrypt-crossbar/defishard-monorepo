@@ -100,6 +100,14 @@ export class KeygenProcessor extends BaseProcessor {
             const protocolResponses = responseMessages.map(msg => this.convertToProtocolMessage(msg, round + 1));
             // Handle round 4: complete keygen and send DONE message
             if (round === 4) {
+                // Check if already completed to prevent re-processing
+                if (this.isComplete) {
+                    if (this.debug) {
+                        console.log(`[KeygenProcessor] Round 4 already processed, keygen complete. Skipping.`);
+                    }
+                    return [];
+                }
+                
                 try {
                     const keyShare = this.session.keyshare();
                     // Save keyshare using storage interface asynchronously (don't block)

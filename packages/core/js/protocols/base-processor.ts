@@ -43,7 +43,10 @@ export abstract class BaseProcessor extends EventEmitter {
    */
   async processMessage(message: ProtocolMessage): Promise<ProtocolMessage[]> {
     if (this.isComplete) {
-      throw new Error('Processor already complete');
+      if (this.debug) {
+        console.log(`[BaseProcessor] Processor already complete, ignoring message from round ${message.round}`);
+      }
+      return [];
     }
 
     try {

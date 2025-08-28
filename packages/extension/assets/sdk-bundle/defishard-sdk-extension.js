@@ -10398,6 +10398,10 @@ class ProtocolManager extends _events__WEBPACK_IMPORTED_MODULE_0__.EventEmitter 
    */
   async startKeygen(distributed = true, secret) {
     try {
+      // Clear processed message IDs and outgoing queue to allow restarting keygen in same session
+      this.processedMessageIds.clear();
+      this.outgoingQueue = [];
+      this.processingOutgoing = false;
       // Common validation and group info retrieval
       const {
         groupInfo,
@@ -10493,6 +10497,10 @@ class ProtocolManager extends _events__WEBPACK_IMPORTED_MODULE_0__.EventEmitter 
    */
   async startSigning(messageHash, keyshare) {
     try {
+      // Clear processed message IDs and outgoing queue to allow restarting signing in same session
+      this.processedMessageIds.clear();
+      this.outgoingQueue = [];
+      this.processingOutgoing = false;
       // Validate message hash
       if (messageHash.length !== 32) {
         throw new Error('Message hash must be 32 bytes');
@@ -11126,7 +11134,10 @@ class BaseProcessor extends _events__WEBPACK_IMPORTED_MODULE_0__.EventEmitter {
    */
   async processMessage(message) {
     if (this.isComplete) {
-      throw new Error('Processor already complete');
+      if (this.debug) {
+        console.log(`[BaseProcessor] Processor already complete, ignoring message from round ${message.round}`);
+      }
+      return [];
     }
     try {
       // Handle START message
@@ -11437,6 +11448,13 @@ class KeygenProcessor extends _base_processor__WEBPACK_IMPORTED_MODULE_1__.BaseP
       const protocolResponses = responseMessages.map(msg => this.convertToProtocolMessage(msg, round + 1));
       // Handle round 4: complete keygen and send DONE message
       if (round === 4) {
+        // Check if already completed to prevent re-processing
+        if (this.isComplete) {
+          if (this.debug) {
+            console.log(`[KeygenProcessor] Round 4 already processed, keygen complete. Skipping.`);
+          }
+          return [];
+        }
         try {
           const keyShare = this.session.keyshare();
           // Save keyshare using storage interface asynchronously (don't block)
