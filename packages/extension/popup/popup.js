@@ -1,15 +1,15 @@
 /**
- * DeFiShArd Extension Popup
+ * DeFiShard Extension Popup
  * Handles the main UI interactions and wallet creation flow
  */
 
-class DeFiShArdPopup {
+class DeFiShardPopup {
     constructor() {
         this.currentStep = 1;
         this.walletConfig = {
             name: '',
-            threshold: 2,
-            totalParties: 2,
+            threshold: 2,        // Fixed 2-of-2 wallet
+            totalParties: 2,     // Fixed 2-of-2 wallet  
             password: ''
         };
         this.groupInfo = null;
@@ -116,8 +116,9 @@ class DeFiShArdPopup {
             if (message.type === 'GROUP_MEMBER_UPDATE') {
                 this.updateGroupStatusUI(message.data.currentMembers, message.data.requiredMembers);
             } else if (message.type === 'ALL_PARTIES_JOINED') {
-                this.showKeygenProgressUI('All parties joined! Starting key generation...');
                 this.groupInfo = message.data.groupInfo; // Store full group info
+                // Automatically start keygen when all parties join
+                this.startKeyGeneration();
             } else if (message.type === 'KEYGEN_STARTED') {
                 this.showKeygenProgressUI(message.data.message);
             } else if (message.type === 'KEYGEN_PROGRESS') {
@@ -134,9 +135,9 @@ class DeFiShArdPopup {
     }
 
     updateGroupStatusUI(currentMembers, requiredMembers) {
-        const statusEl = document.getElementById('waiting-status');
-        if (statusEl) {
-            statusEl.textContent = `Waiting for parties: ${currentMembers}/${requiredMembers}`;
+        const counterEl = document.querySelector('.counter-text');
+        if (counterEl) {
+            counterEl.textContent = `${currentMembers}/${requiredMembers} parties connected`;
         }
         console.log(`👥 Group status update: ${currentMembers}/${requiredMembers} members`);
     }
@@ -163,27 +164,63 @@ class DeFiShArdPopup {
     showKeygenCompleteUI(message, keyshare) {
         console.log('✅ Keygen complete:', message, keyshare);
         
-        // Update the UI to show completion
-        const container = document.querySelector('.qr-section');
-        if (container) {
-            container.innerHTML = `
-                <div class="keygen-complete">
-                    <h3>✅ Key Generation Complete!</h3>
-                    <p class="success-message">${message}</p>
-                    <div class="keyshare-info">
-                        <p><strong>Public Key:</strong> ${String(keyshare.publicKey).substring(0, 20)}...</p>
-                        <p><strong>Group ID:</strong> ${String(keyshare.groupId || '').substring(0, 20)}...</p>
-                        <p><strong>Threshold:</strong> ${keyshare.threshold}/${keyshare.totalParties}</p>
-                    </div>
-                    <button id="new-wallet-btn" class="btn btn-primary">Create Another Wallet</button>
-                </div>
-            `;
-            
-            // Add event listener for new wallet button
-            document.getElementById('new-wallet-btn')?.addEventListener('click', () => {
-                this.showWalletCreation();
+        // Transition to the success screen
+        this.showSuccessScreen(keyshare);
+    }
+
+    showSuccessScreen(keyshare) {
+        console.log('🎉 Showing success screen with keyshare:', keyshare);
+        
+        // Hide all other screens
+        document.querySelectorAll('.screen').forEach(screen => {
+            screen.classList.add('hidden');
+        });
+        
+        // Show success screen
+        const successScreen = document.getElementById('success-screen');
+        successScreen.classList.remove('hidden');
+        
+        // Populate wallet information
+        const walletName = this.walletConfig?.name || 'DeFiShard Wallet';
+        const securityLevel = `${keyshare.threshold || 2}-of-${keyshare.totalParties || 2}`;
+        const publicKey = keyshare.publicKey ? String(keyshare.publicKey).substring(0, 42) + '...' : 'N/A';
+        
+        document.getElementById('final-wallet-name').textContent = walletName;
+        document.getElementById('final-security-level').textContent = securityLevel;
+        document.getElementById('final-public-key').textContent = publicKey;
+        
+        // Set up button event listeners
+        this.setupSuccessScreenButtons();
+    }
+
+    setupSuccessScreenButtons() {
+        // Remove existing event listeners by cloning elements
+        const viewWalletBtn = document.getElementById('view-wallet-btn');
+        const createAnotherBtn = document.getElementById('create-another-btn');
+        
+        if (viewWalletBtn) {
+            const newViewBtn = viewWalletBtn.cloneNode(true);
+            viewWalletBtn.parentNode.replaceChild(newViewBtn, viewWalletBtn);
+            newViewBtn.addEventListener('click', () => {
+                console.log('👁️ View wallet clicked');
+                this.showWalletView();
             });
         }
+        
+        if (createAnotherBtn) {
+            const newCreateBtn = createAnotherBtn.cloneNode(true);
+            createAnotherBtn.parentNode.replaceChild(newCreateBtn, createAnotherBtn);
+            newCreateBtn.addEventListener('click', () => {
+                console.log('➕ Create another wallet clicked');
+                this.resetAndShowWelcome();
+            });
+        }
+    }
+
+    showWalletView() {
+        // For now, just show an alert - this can be expanded later
+        alert('Wallet view functionality will be implemented in a future update. Your wallet has been created successfully!');
+        console.log('📱 Wallet view - to be implemented');
     }
 
     showKeygenErrorUI(error) {
@@ -239,25 +276,8 @@ class DeFiShArdPopup {
     }
 
     showWaitingForPartiesUI() {
-        // Don't replace the QR section, just update the status message
-        const statusEl = document.getElementById('waiting-status');
-        if (statusEl) {
-            statusEl.textContent = `Waiting for parties: 1/${this.walletConfig.totalParties}`;
-        } else {
-            // If no status element exists, add it without removing QR code
-            const qrContainer = document.getElementById('qr-container');
-            if (qrContainer && qrContainer.parentElement) {
-                const statusDiv = document.createElement('div');
-                statusDiv.className = 'waiting-status';
-                statusDiv.innerHTML = `
-                    <h3>👥 Waiting for Other Parties</h3>
-                    <p id="waiting-status">Waiting for parties: 1/${this.walletConfig.totalParties}</p>
-                    <div class="spinner">⟳</div>
-                    <p class="waiting-message">Share the QR code above with other parties to join the group</p>
-                `;
-                qrContainer.parentElement.appendChild(statusDiv);
-            }
-        }
+        // Clean design - no additional UI needed, status is already shown in the main section
+        console.log('👥 Waiting for parties UI - using clean design');
     }
 
     setupEventListeners() {
@@ -269,31 +289,20 @@ class DeFiShArdPopup {
         // Step 1: Configuration
         document.getElementById('wallet-name').addEventListener('input', (e) => {
             this.walletConfig.name = e.target.value;
-            this.updatePreview();
-            this.validateStep1();
-        });
-
-        document.getElementById('threshold').addEventListener('change', (e) => {
-            this.walletConfig.threshold = parseInt(e.target.value);
-            this.updatePreview();
-            this.validateStep1();
-        });
-
-        document.getElementById('total-parties').addEventListener('change', (e) => {
-            this.walletConfig.totalParties = parseInt(e.target.value);
-            this.updatePreview();
             this.validateStep1();
         });
 
         document.getElementById('wallet-password').addEventListener('input', (e) => {
             this.walletConfig.password = e.target.value;
-            this.updatePreview();
+            this.validateStep1();
+        });
+
+        document.getElementById('confirm-password').addEventListener('input', () => {
+            this.validateStep1();
         });
 
         // Navigation buttons
-        document.getElementById('back-to-welcome').addEventListener('click', () => {
-            this.showWelcome();
-        });
+        // Back button removed for simplified flow
 
         document.getElementById('next-to-share').addEventListener('click', () => {
             // Prevent multiple clicks during group creation
@@ -306,12 +315,11 @@ class DeFiShArdPopup {
 
 
 
-        document.getElementById('back-to-config').addEventListener('click', () => {
-            this.showStep1();
-        });
+        // Back button and start keygen button removed for simplified flow
 
-        document.getElementById('start-keygen').addEventListener('click', () => {
-            this.startKeyGeneration();
+        // Copy button
+        document.getElementById('copy-data-btn').addEventListener('click', () => {
+            this.copyWalletData();
         });
 
         // Success screen
@@ -323,14 +331,7 @@ class DeFiShArdPopup {
             this.resetAndShowWelcome();
         });
 
-        // Footer buttons
-        document.getElementById('settings-btn').addEventListener('click', () => {
-            this.openSettings();
-        });
-
-        document.getElementById('help-btn').addEventListener('click', () => {
-            this.openHelp();
-        });
+        // Footer buttons removed for simplified UI
     }
 
     // Screen Management
@@ -349,14 +350,14 @@ class DeFiShArdPopup {
     showStep1() {
         this.hideAllStepContent();
         document.getElementById('step-1-content').classList.remove('hidden');
-        this.updateStepIndicator(1);
+        // Step indicator removed
         this.currentStep = 1;
     }
 
     showStep2() {
         this.hideAllStepContent();
         document.getElementById('step-2-content').classList.remove('hidden');
-        this.updateStepIndicator(2);
+        // Step indicator removed
         this.currentStep = 2;
         // Automatically start the background process: register party → create group → generate QR code
         this.createGroupAndGenerateQR();
@@ -365,7 +366,7 @@ class DeFiShArdPopup {
     showStep3() {
         this.hideAllStepContent();
         document.getElementById('step-3-content').classList.remove('hidden');
-        this.updateStepIndicator(3);
+        // Step indicator removed
         this.currentStep = 3;
     }
 
@@ -385,37 +386,34 @@ class DeFiShArdPopup {
         stepContents.forEach(content => content.classList.add('hidden'));
     }
 
-    updateStepIndicator(activeStep) {
-        const steps = document.querySelectorAll('.step');
-        steps.forEach((step, index) => {
-            const stepNumber = index + 1;
-            step.classList.remove('active', 'completed');
-            
-            if (stepNumber < activeStep) {
-                step.classList.add('completed');
-            } else if (stepNumber === activeStep) {
-                step.classList.add('active');
-            }
-        });
-    }
+    // Step indicator removed for simplified UI
 
     // Form Validation and Preview
     validateStep1() {
-        const isValid = this.walletConfig.name.trim().length > 0;
+        const walletName = this.walletConfig.name.trim();
+        const password = document.getElementById('wallet-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+        
+        let isValid = walletName.length > 0;
+        
+        // If password is entered, confirm password must match
+        if (password.length > 0) {
+            isValid = isValid && (password === confirmPassword);
+        }
+        
         const nextButton = document.getElementById('next-to-share');
         nextButton.disabled = !isValid;
+        
+        // Show password mismatch warning
+        const confirmInput = document.getElementById('confirm-password');
+        if (password.length > 0 && confirmPassword.length > 0 && password !== confirmPassword) {
+            confirmInput.style.borderColor = '#ff4444';
+        } else {
+            confirmInput.style.borderColor = '';
+        }
     }
 
-    updatePreview() {
-        document.getElementById('preview-name').textContent = 
-            this.walletConfig.name || '-';
-        
-        document.getElementById('preview-security').textContent = 
-            `${this.walletConfig.threshold}-of-${this.walletConfig.totalParties}`;
-        
-        document.getElementById('preview-encryption').textContent = 
-            this.walletConfig.password ? 'Password Protected' : 'None';
-    }
+    // Wallet preview removed for simplified UI
 
     // Group Creation and QR Code Generation
     async createGroupAndGenerateQR() {
@@ -507,6 +505,8 @@ class DeFiShArdPopup {
             console.log('Step 3: Generating QR code image...');
             await this.generateQRCodeImage();
             
+            // QR data is ready for copying via the copy button
+            
             // Start monitoring for other parties to join
             this.startGroupMonitoring();
             
@@ -565,18 +565,13 @@ class DeFiShArdPopup {
                 qrContainer.removeChild(qrContainer.firstChild);
             }
 
-            // Create container for QR code
+            // Create minimal container for QR code that fits our design
             const containerDiv = document.createElement('div');
-            containerDiv.style.textAlign = 'center';
-            containerDiv.style.padding = '20px';
-            
-            const qrBox = document.createElement('div');
-            qrBox.style.background = '#ffffff';
-            qrBox.style.border = '2px solid #e9ecef';
-            qrBox.style.borderRadius = '12px';
-            qrBox.style.padding = '20px';
-            qrBox.style.marginBottom = '16px';
-            qrBox.style.display = 'inline-block';
+            containerDiv.style.display = 'flex';
+            containerDiv.style.justifyContent = 'center';
+            containerDiv.style.alignItems = 'center';
+            containerDiv.style.width = '100%';
+            containerDiv.style.height = '100%';
             
             // Generate real QR code using the qrcode library
             if (typeof qrcode !== 'undefined') {
@@ -587,24 +582,27 @@ class DeFiShArdPopup {
                 qr.addData(qrData);
                 qr.make();
                 
-                // Get the QR code size
+                // Get the QR code size - optimized for our extra-large scannable container
                 const moduleCount = qr.getModuleCount();
-                const cellSize = 4;
-                const margin = 20;
-                const qrSize = moduleCount * cellSize + margin * 2;
+                const containerSize = 252; // Fit inside our 300px container with padding
+                const cellSize = Math.floor(containerSize / moduleCount);
+                const actualQrSize = moduleCount * cellSize;
+                const margin = Math.floor((containerSize - actualQrSize) / 2);
                 
                 // Create SVG for the QR code
                 const qrSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                qrSvg.setAttribute('width', qrSize.toString());
-                qrSvg.setAttribute('height', qrSize.toString());
-                qrSvg.setAttribute('viewBox', `0 0 ${qrSize} ${qrSize}`);
+                qrSvg.setAttribute('width', containerSize.toString());
+                qrSvg.setAttribute('height', containerSize.toString());
+                qrSvg.setAttribute('viewBox', `0 0 ${containerSize} ${containerSize}`);
                 qrSvg.style.display = 'block';
                 qrSvg.style.margin = '0 auto';
+                qrSvg.style.maxWidth = '100%';
+                qrSvg.style.maxHeight = '100%';
                 
                 // Create white background
                 const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                bg.setAttribute('width', qrSize.toString());
-                bg.setAttribute('height', qrSize.toString());
+                bg.setAttribute('width', containerSize.toString());
+                bg.setAttribute('height', containerSize.toString());
                 bg.setAttribute('fill', '#ffffff');
                 qrSvg.appendChild(bg);
                 
@@ -623,29 +621,31 @@ class DeFiShArdPopup {
                     }
                 }
                 
-                qrBox.appendChild(qrSvg);
+                containerDiv.appendChild(qrSvg);
                 console.log('✅ Real QR code generated successfully');
             } else {
                 console.warn('⚠️ QR code library not available, creating placeholder');
                 
                 // Fallback: Create simple QR code placeholder using SVG
                 const qrSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                qrSvg.setAttribute('width', '200');
-                qrSvg.setAttribute('height', '200');
-                qrSvg.setAttribute('viewBox', '0 0 200 200');
+                qrSvg.setAttribute('width', '252');
+                qrSvg.setAttribute('height', '252');
+                qrSvg.setAttribute('viewBox', '0 0 252 252');
                 qrSvg.style.display = 'block';
                 qrSvg.style.margin = '0 auto';
+                qrSvg.style.maxWidth = '100%';
+                qrSvg.style.maxHeight = '100%';
                 
                 // Create a simple QR-like pattern
                 const qrPattern = this.createSimpleQRPattern(qrData);
                 
                 // Create background
                 const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                bg.setAttribute('width', '200');
-                bg.setAttribute('height', '200');
+                bg.setAttribute('width', '252');
+                bg.setAttribute('height', '252');
                 bg.setAttribute('fill', '#ffffff');
                 bg.setAttribute('stroke', '#000000');
-                bg.setAttribute('stroke-width', '2');
+                bg.setAttribute('stroke-width', '1');
                 qrSvg.appendChild(bg);
                 
                 // Create pattern
@@ -653,10 +653,10 @@ class DeFiShArdPopup {
                     for (let j = 0; j < qrPattern[i].length; j++) {
                         if (qrPattern[i][j]) {
                             const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                            rect.setAttribute('x', (j * 8 + 10).toString());
-                            rect.setAttribute('y', (i * 8 + 10).toString());
-                            rect.setAttribute('width', '8');
-                            rect.setAttribute('height', '8');
+                            rect.setAttribute('x', (j * 10 + 12).toString());
+                            rect.setAttribute('y', (i * 10 + 12).toString());
+                            rect.setAttribute('width', '10');
+                            rect.setAttribute('height', '10');
                             rect.setAttribute('fill', '#000000');
                             qrSvg.appendChild(rect);
                         }
@@ -666,50 +666,11 @@ class DeFiShArdPopup {
                 // Add QR identifier corners
                 this.addQRCorners(qrSvg);
                 
-                qrBox.appendChild(qrSvg);
+                containerDiv.appendChild(qrSvg);
                 console.log('✅ Fallback QR code pattern generated successfully');
             }
             
-            const label = document.createElement('p');
-            label.style.fontSize = '14px';
-            label.style.color = '#666';
-            label.style.marginBottom = '12px';
-            label.style.fontWeight = '500';
-            label.style.marginTop = '16px';
-            label.textContent = 'QR Code Data (Copy & Paste):';
-            
-            const dataBox = document.createElement('div');
-            dataBox.style.background = '#f8f9fa';
-            dataBox.style.border = '1px solid #e9ecef';
-            dataBox.style.borderRadius = '8px';
-            dataBox.style.padding = '12px';
-            dataBox.style.textAlign = 'left';
-            dataBox.style.maxWidth = '300px';
-            dataBox.style.margin = '0 auto';
-            
-            const dataText = document.createElement('div');
-            dataText.style.fontFamily = 'monospace';
-            dataText.style.fontSize = '10px';
-            dataText.style.color = '#333';
-            dataText.style.wordBreak = 'break-all';
-            dataText.style.lineHeight = '1.4';
-            dataText.style.maxHeight = '100px';
-            dataText.style.overflow = 'auto';
-            dataText.textContent = qrData;
-            
-            dataBox.appendChild(dataText);
-            
-            const instruction = document.createElement('p');
-            instruction.style.fontSize = '12px';
-            instruction.style.color = '#999';
-            instruction.style.marginTop = '12px';
-            instruction.textContent = 'Scan the QR code or copy the data to join the group';
-            
-            containerDiv.appendChild(qrBox);
-            containerDiv.appendChild(label);
-            containerDiv.appendChild(dataBox);
-            containerDiv.appendChild(instruction);
-            
+            // Just append the clean container with the QR code
             qrContainer.appendChild(containerDiv);
 
         } catch (error) {
@@ -947,40 +908,31 @@ class DeFiShArdPopup {
     // Key Generation Process
     async startKeyGeneration() {
         try {
-            console.log('Starting key generation process...');
+            console.log('🔑 Starting key generation process...');
+            console.log('Group info available:', this.groupInfo);
             
-            // Update status to show we're starting
-            this.updateKeygenStatus('Initializing key generation...');
-            
-            // Send message to background script to start keygen
-            const response = await chrome.runtime.sendMessage({
-                type: 'START_KEYGEN',
-                data: {
-                    groupId: this.groupInfo.groupId,
-                    walletName: this.walletName,
-                    partyId: this.groupInfo.creator.partyId,
-                    aesKey: this.qrCodeData ? JSON.parse(this.qrCodeData).aesKey : null
-                }
-            });
-            
-            if (response && response.success) {
-                console.log('Key generation started successfully:', response);
-                this.updateKeygenStatus('✅ Key generation completed!');
-                
-                // Store the wallet
-                await this.saveWallet(response.wallet);
-                
-                // Show success screen after a short delay
-                setTimeout(() => {
-                    this.showStep3();
-                }, 2000);
-            } else {
-                console.error('Key generation failed:', response?.error);
-                this.updateKeygenStatus('❌ Key generation failed: ' + (response?.error || 'Unknown error'));
+            // Check if groupInfo is available
+            if (!this.groupInfo) {
+                throw new Error('Group information is not available. Please create a group first.');
             }
+            
+            // Transition to the keygen progress screen
+            this.showStep3();
+            
+            // Start the actual key generation
+            const result = await this.performKeyGeneration();
+            
+            if (result.success) {
+                console.log('✅ Key generation completed successfully!');
+                // The success screen will be shown via the KEYGEN_COMPLETED message
+            } else {
+                console.error('❌ Key generation failed:', result.error);
+                this.showKeygenErrorUI(result.error);
+            }
+            
         } catch (error) {
-            console.error('Error starting key generation:', error);
-            this.updateKeygenStatus('❌ Failed to start key generation: ' + error.message);
+            console.error('❌ Error starting key generation:', error);
+            this.showKeygenErrorUI(error.message);
         }
     }
 
@@ -994,14 +946,22 @@ class DeFiShArdPopup {
 
     async performKeyGeneration() {
         try {
+            console.log('Performing key generation with group info:', this.groupInfo);
+            
+            // Check if groupInfo is available
+            if (!this.groupInfo) {
+                throw new Error('Group information is not available. Please create a group first.');
+            }
+            
             // Send message to background script to start keygen
             const response = await chrome.runtime.sendMessage({
                 type: 'START_KEYGEN',
                 data: {
                     groupId: this.groupInfo.groupId,
-                    threshold: this.walletConfig.threshold,
-                    totalParties: this.walletConfig.totalParties,
-                    password: this.walletConfig.password
+                    threshold: this.groupInfo.threshold || this.walletConfig?.threshold || 2,
+                    totalParties: this.groupInfo.totalParties || this.walletConfig?.totalParties || 2,
+                    password: this.walletConfig?.password || '',
+                    walletName: this.walletConfig?.name || 'DeFiShard Wallet'
                 }
             });
 
@@ -1012,6 +972,7 @@ class DeFiShArdPopup {
             return { success: true, keyshare: response.keyshare };
 
         } catch (error) {
+            console.error('Error in performKeyGeneration:', error);
             return { success: false, error: error.message };
         }
     }
@@ -1064,21 +1025,13 @@ class DeFiShArdPopup {
 
     // Connection Status
     async updateConnectionStatus() {
+        // Connection status UI removed for simplified interface
         try {
             const response = await chrome.runtime.sendMessage({ type: 'GET_CONNECTION_STATUS' });
-            
-            const statusDot = document.getElementById('connection-status');
-            const statusText = document.getElementById('status-text');
-            
-            if (response.connected) {
-                statusDot.classList.add('connected');
-                statusText.textContent = 'Connected';
-            } else {
-                statusDot.classList.remove('connected');
-                statusText.textContent = 'Disconnected';
-            }
+            // Just log the status, no UI updates needed
+            console.log('Connection status:', response.connected ? 'Connected' : 'Disconnected');
         } catch (error) {
-            console.error('Failed to update connection status:', error);
+            console.error('Failed to get connection status:', error);
         }
     }
 
@@ -1123,11 +1076,6 @@ class DeFiShArdPopup {
     resetKeygenState() {
         this.keygenInProgress = false;
         this.startTime = null;
-        
-        const startButton = document.getElementById('start-keygen');
-        startButton.querySelector('.btn-text').classList.remove('hidden');
-        startButton.querySelector('.btn-loading').classList.add('hidden');
-        startButton.disabled = false;
     }
 
     resetAndShowWelcome() {
@@ -1144,9 +1092,8 @@ class DeFiShArdPopup {
         
         // Reset form
         document.getElementById('wallet-name').value = '';
-        document.getElementById('threshold').value = '2';
-        document.getElementById('total-parties').value = '2';
         document.getElementById('wallet-password').value = '';
+        document.getElementById('confirm-password').value = '';
         
         this.updatePreview();
         this.validateStep1();
@@ -1258,14 +1205,53 @@ class DeFiShArdPopup {
         chrome.runtime.sendMessage({ type: 'OPEN_WALLET_VIEW' });
     }
 
-    openSettings() {
-        // Open the options page in a new tab
-        chrome.tabs.create({ url: chrome.runtime.getURL('options/options.html') });
-        window.close(); // Close the popup
-    }
-
-    openHelp() {
-        chrome.runtime.sendMessage({ type: 'OPEN_HELP' });
+    // Settings and help methods removed for simplified UI
+    
+    async copyWalletData() {
+        try {
+            if (!this.qrCodeData) {
+                console.log('No QR data to copy yet');
+                return;
+            }
+            
+            await navigator.clipboard.writeText(this.qrCodeData);
+            
+            // Visual feedback
+            const copyBtn = document.getElementById('copy-data-btn');
+            const originalText = copyBtn.innerHTML;
+            copyBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Copied!
+            `;
+            copyBtn.style.backgroundColor = '#10b981';
+            
+            setTimeout(() => {
+                copyBtn.innerHTML = originalText;
+                copyBtn.style.backgroundColor = '';
+            }, 2000);
+            
+            console.log('✅ QR data copied to clipboard');
+        } catch (error) {
+            console.error('❌ Failed to copy QR data:', error);
+            
+            // Visual feedback for error
+            const copyBtn = document.getElementById('copy-data-btn');
+            const originalText = copyBtn.innerHTML;
+            copyBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Failed
+            `;
+            copyBtn.style.backgroundColor = '#ef4444';
+            
+            setTimeout(() => {
+                copyBtn.innerHTML = originalText;
+                copyBtn.style.backgroundColor = '';
+            }, 2000);
+        }
     }
 
     // Timer updates
@@ -1285,7 +1271,7 @@ class DeFiShArdPopup {
 
 // Initialize the popup when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.defishardPopup = new DeFiShArdPopup();
+    window.defishardPopup = new DeFiShardPopup();
 });
 
 // Handle messages from background script

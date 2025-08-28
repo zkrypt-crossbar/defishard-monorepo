@@ -402,8 +402,8 @@ class PopupApp {
     async loadConfiguration() {
         // Load configuration from storage or use defaults
         return {
-            relayerUrl: 'http://68.183.230.178:3000',
-            websocketUrl: 'ws://68.183.230.178:3000',
+            relayerUrl: 'http://localhost:3000',
+            websocketUrl: 'ws://localhost:3000',
             debug: false
         };
     }

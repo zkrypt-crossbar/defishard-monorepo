@@ -41,8 +41,8 @@ try {
 
 // Default configuration
 const DEFAULT_CONFIG = {
-    relayerUrl: 'http://68.183.230.178:3000',
-    websocketUrl: 'ws://68.183.230.178:3000',
+    relayerUrl: 'http://localhost:3000',
+    websocketUrl: 'ws://localhost:3000',
     debug: false
 };
 
@@ -567,8 +567,19 @@ async function startKeygenProcess(groupInfo) {
 
 async function handleStartKeygen(data, sendResponse) {
     try {
-        console.log('🔑 Manual keygen start requested');
-        await startKeygenProcess(data.groupInfo);
+        console.log('🔑 Manual keygen start requested with data:', data);
+        
+        // Transform the data structure from popup format to expected format
+        const groupInfo = {
+            group_id: data.groupId,  // camelCase to snake_case
+            threshold: data.threshold || 2,
+            totalParties: data.totalParties || 2,
+            walletName: data.walletName || 'DeFiShard Wallet',
+            password: data.password || ''
+        };
+        
+        console.log('🔄 Transformed groupInfo:', groupInfo);
+        await startKeygenProcess(groupInfo);
         
         sendResponse({
             success: true,

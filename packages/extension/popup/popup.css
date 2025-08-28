@@ -411,22 +411,93 @@ body {
     border-top: 1px solid #e0e0e0;
 }
 
-/* QR Code Section */
-.qr-section {
+/* Waiting Section */
+.waiting-section {
     display: flex;
     flex-direction: column;
     gap: 24px;
+    align-items: center;
+    text-align: center;
 }
 
-.qr-container {
+/* Status Section */
+.status-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.status-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.party-counter {
+    background: rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    border-radius: 20px;
+    padding: 6px 16px;
+}
+
+.counter-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: #667eea;
+}
+
+.status-description {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+}
+
+/* QR Section Main */
+.qr-section-main {
+    display: flex;
+    justify-content: center;
+}
+
+.qr-container-small {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 200px;
+    width: 180px;
+    height: 180px;
     background: white;
     border-radius: 12px;
-    border: 2px solid #e0e0e0;
+    border: 1px solid #e0e0e0;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.qr-container-large {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 240px;
+    height: 240px;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
     padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.qr-container-xl {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 300px;
+    height: 300px;
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #e0e0e0;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin: 16px auto;
 }
 
 .qr-placeholder {
@@ -435,10 +506,46 @@ body {
     align-items: center;
     gap: 12px;
     color: #666;
+    text-align: center;
 }
 
 .qr-placeholder svg {
     color: #ccc;
+}
+
+.qr-placeholder p {
+    font-size: 12px;
+    margin: 0;
+}
+
+/* Copy Section */
+.copy-section {
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+.copy-data-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.copy-data-btn:hover {
+    background: #5a6fd8;
+}
+
+.copy-data-btn:active {
+    background: #4c5dd1;
 }
 
 .qr-info {
